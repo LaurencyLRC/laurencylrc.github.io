@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>[HARD] BMS Library難易度表</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="bmstable" content="header.json" />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+    <header class="mb-3">
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">[HARD] BMS Library難易度表</span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <div class="alert alert-success mb-3" role="alert">
+            <p>This table sorts BMS charts based on their HARD CLEAR difficulty, as estimated by <a href="https://horieyuuka.github.io/Scale-analyzer" target="_blank">HorieYuuka's scale analyzer</a>.</p>
+            <p class="mb-0">Clicking on any song title will open its EZ2PATTERN preview.</p>
+        </div>
+
+        <!-- Table Body -->
+        <div>
+            <table class="table table-light table-striped table-hover" id="table_int" style="table-layout: fixed;">
+            </table>
+        </div>
+        <script language="javascript" type="text/javascript">
+            $(document).ready(function () {
+                $.getJSON($("meta[name=bmstable]").attr("content"), function (header) {
+                    $.getJSON(header.data_url, function (information) {
+                        // Sort the JSON data by the level_order in header.json before rendering
+                        information.sort(function(a, b) {
+                            return header.level_order.indexOf(a.level) - header.level_order.indexOf(b.level);
+                        });
+                        makeBMSTable(information, header.symbol);
+                    });
+                });
+            });
+
+            function makeBMSTable(info, mark) {
+                var x = "";
+                var obj_sep = null;
+                var count = 0;
+                var obj = $("#table_int");
+
+                obj.html("");
+                $("<thead class='table-dark'><tr><th style='width: 20%;'>Level</th><th style='width: 80%;'>Title</th></tr></thead><tbody>")
+                    .appendTo(obj);
+                
+                for (var i = 0; i < info.length; i++) {
+                    if (x !== info[i].level) {
+                        if (obj_sep !== null) {
+                            // Removed the space between mark and x here
+                            obj_sep.html("<td colspan='2'><b>" + mark + x + " (" + count + " charts)</b></td>");
+                        }
+                        obj_sep = $("<tr class='table-dark' style='text-align:center' id='" + mark + info[i].level + "'></tr>");
+                        obj_sep.appendTo(obj);
+                        count = 0;
+                        x = info[i].level;
+                    }
+
+                    var str = $("<tr></tr>");
+
+                    $("<td>" + mark + x + "</td>").appendTo(str);
+
+                    // Title with EZ2PATTERN link
+                    $("<td class='text-break'><a href='https://ez2pattern.kr/bms/chart?md5=" + info[i].md5 + "' target='_blank'>" + info[i].title + "</a></td>").appendTo(str);
+
+                    str.appendTo(obj);
+                    count++;
+                }
+                $("</tbody>").appendTo(obj);
+
+                if (obj_sep !== null) {
+                    // Removed the space between mark and x here
+                    obj_sep.html("<td class='table-dark' style='text-align:center' colspan='2'><b>" + mark + x + " (" + count + " charts)</b></td>");
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
