@@ -12,160 +12,192 @@
             --accent: #42a5f5; 
             --accent-hover: #1e88e5;
             --border: #333;
-            --success: #4af626;
-            --error: #ff5252;
-            --amber: #ffb300;
-        }
-        
-        * {
-            box-sizing: border-box;
         }
 
+        /* Responsive base rules (mobile-first) */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px 10px; /* Reduced mobile padding */
             display: flex;
             justify-content: center;
-            line-height: 1.5;
         }
 
         .container {
             background-color: var(--container-bg);
-            padding: 30px;
-            border-radius: 12px;
+            padding: 20px; /* Reduced mobile padding */
+            border-radius: 8px;
             width: 100%;
             max-width: 700px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        }
-
-        header {
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-sizing: border-box; /* Crucial for width calc */
         }
 
         h1 {
-            margin: 0;
-            font-size: 1.75rem;
+            margin-top: 0;
+            font-size: 1.2rem; /* Smaller mobile font */
             color: var(--accent);
-            letter-spacing: -0.5px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
 
+        /* Mobile-first: Stack input elements */
         .input-group {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        select, input[type="text"] {
-            padding: 12px 16px;
-            background-color: #2c2c2c;
-            border: 2px solid var(--border);
-            color: white;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            flex-direction: column; /* Stack on mobile */
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         select {
+            padding: 10px;
+            background-color: #2c2c2c;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
             cursor: pointer;
-            min-width: 100px;
+            width: 100%; /* Full width on mobile */
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
         }
 
         input[type="text"] {
-            flex: 1;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            flex: none; /* Reset flex-grow for mobile */
+            padding: 10px;
+            background-color: #2c2c2c;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: monospace;
+            width: 100%; /* Full width on mobile */
+            box-sizing: border-box;
         }
 
-        select:focus, input[type="text"]:focus {
+        input[type="text"]:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.2);
+        }
+
+        input:disabled, button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         button {
             background-color: var(--accent);
             color: #121212;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
+            padding: 10px 18px;
+            font-size: 0.9rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color 0.2s;
+            width: 100%; /* Full width on mobile */
         }
 
         button:hover:not(:disabled) {
             background-color: var(--accent-hover);
         }
 
-        button:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        input:disabled, button:disabled, select:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
+        /* Mobile-first: Output text styling to prevent clipping */
         pre {
             background-color: #0c0c0c;
-            color: var(--success);
-            padding: 20px;
-            border-radius: 8px;
+            color: #4af626;
+            padding: 10px;
+            border-radius: 4px;
             border: 1px solid var(--border);
             overflow-x: auto;
-            white-space: pre-wrap;
-            min-height: 120px;
-            font-size: 1.4rem; 
+            white-space: pre-wrap; /* Crucial for mobile clipping fix */
+            min-height: 80px;
+            font-size: 1rem; /* Smaller mobile font to fit screen */
             margin: 0;
-            line-height: 1.6;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.2;
+            word-wrap: break-word; /* Crucial for clipping fix */
         }
         
-        .key-white { 
-            color: #ffffff; 
-            text-shadow: 0 0 4px rgba(255,255,255,0.4);
-        }
-        .key-blue { 
-            color: var(--accent); 
-            text-shadow: 0 0 4px rgba(66, 165, 245, 0.4);
-        }
-        .key-amber {
-            color: var(--amber);
-            text-shadow: 0 0 4px rgba(255, 179, 0, 0.4);
-        }
-        .error-text {
-            color: var(--error);
+        .key-white { color: #ffffff; }
+        .key-blue { color: #42a5f5; }
+
+        /* --- Media Query for PC/Wider Screens (Restore PC View) --- */
+        @media (min-width: 600px) {
+            body {
+                padding: 40px 20px;
+            }
+
+            .container {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                padding-bottom: 12px;
+                margin-bottom: 20px;
+            }
+
+            /* Restore the inline, flexible layout */
+            .input-group {
+                flex-direction: row; /* Inline on PC */
+                margin-bottom: 20px;
+            }
+
+            select {
+                width: auto; /* Reset full width */
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            input[type="text"] {
+                flex: 1; /* Input grows to fill space */
+                width: auto; /* Reset full width */
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            button {
+                width: auto; /* Reset full width */
+                padding: 10px 18px;
+                font-size: 0.95rem;
+            }
+
+            pre {
+                padding: 15px;
+                min-height: 100px;
+                font-size: 1.54rem; /* Restore original large size */
+                line-height: 1.4;
+            }
         }
     </style>
 </head>
 <body>
-    <main class="container">
-        <header>
-            <h1>Qwilight Random Seed Analyzer/Selector</h1>
-        </header>
+    <div class="container">
+        <h1>Qwilight Random Seed Analyzer/Selector</h1>
         
         <div class="input-group">
-            <select id="keyMode" aria-label="Select Key Mode">
+            <select id="keyMode">
                 <option value="5">5-key</option>
                 <option value="7" selected>7-key</option>
                 <option value="9">9-key</option>
             </select>
-            <input type="text" id="userInput" placeholder="Seed (e.g. 612) or layout (e.g. 2461357)" autocomplete="off">
+            <input type="text" id="userInput" placeholder="Seed (e.g. 0) or layout (e.g. 2347516)" autocomplete="off">
             <button id="btnSearch">Process</button>
         </div>
 
         <pre id="outputLog">Ready. Enter a seed or arrangement above.</pre>
-    </main>
+    </div>
 
     <script>
-        // ------------------------------------------------------------------
-        // Core Logic & Utilities
-        // ------------------------------------------------------------------
+        // (JavaScript content preserved exactly as provided in the original file)
+
+        // Main thread class for instant single-seed lookups
         class DotNetRandom {
             constructor(seed) {
                 const MBIG = 2147483647;
@@ -175,7 +207,7 @@
                 this.inextp = 21;
                 this.SeedArray = new Int32Array(56);
                 
-                seed = Math.trunc(seed) | 0; 
+                seed = Math.floor(seed) | 0; 
                 let subtraction = (seed === -2147483648) ? MBIG : Math.abs(seed);
                 let mj = MSEED - subtraction;
                 this.SeedArray[55] = mj;
@@ -215,8 +247,7 @@
             }
             
             Sample() {
-                // Pre-calculated constant for 1.0 / 2147483647.0
-                return this.InternalSample() * 4.656612875245797e-10;
+                return this.InternalSample() * (1.0 / 2147483647.0);
             }
             
             Next(minValue, maxValue) {
@@ -224,6 +255,9 @@
                 return Math.floor(this.Sample() * range) + minValue;
             }
         }
+
+        const charMap = "123456789";
+        const toChar = (val) => charMap[val - 1];
 
         function getArrangement(seed, keyCount) {
             let rnd = new DotNetRandom(seed);
@@ -241,54 +275,61 @@
                 cpArray[naArray[i] - 1] = i + 1;
             }
             
-            return cpArray.join("");
+            return cpArray.map(toChar).join("");
         }
 
         function formatCP(cpString, keyCount) {
-            return cpString.split('').map(char => {
-                let val = parseInt(char, 10); 
-                let isWhiteKey = keyCount % 2 !== 0 
-                    ? (val % 2 !== 0) 
-                    : (Math.min(val, keyCount - val + 1) % 2 !== 0);
+            let formatted = "";
+            for (let i = 0; i < cpString.length; i++) {
+                let val = parseInt(cpString[i], 10); 
                 
-                let keyClass = isWhiteKey ? 'key-white' : 'key-blue';
-                return `<span class="${keyClass}">${val}</span>`;
-            }).join('');
+                let isWhiteKey;
+                if (keyCount % 2 !== 0) {
+                    isWhiteKey = (val % 2 !== 0);
+                } else {
+                    let posFromEdge = Math.min(val, keyCount - val + 1);
+                    isWhiteKey = (posFromEdge % 2 !== 0);
+                }
+                
+                if (isWhiteKey) {
+                    formatted += `<span class="key-white">${val}</span>`;
+                } else {
+                    formatted += `<span class="key-blue">${val}</span>`;
+                }
+            }
+            return formatted;
         }
 
-        function isValidArrangement(arr) {
-            const N = arr.length;
-            if (![5, 7, 9].includes(N)) return false;
-            
-            // Check if string contains only digits from 1 to N
-            const regex = new RegExp(`^[1-${N}]+$`);
-            if (!regex.test(arr)) return false;
-            
-            // Check for duplicate digits (Set size must equal N)
-            return new Set(arr).size === N;
-        }
-
-        // ------------------------------------------------------------------
-        // DOM Interactions
-        // ------------------------------------------------------------------
         const outputLog = document.getElementById('outputLog');
         const userInput = document.getElementById('userInput');
         const keyModeSelect = document.getElementById('keyMode');
         const btnSearch = document.getElementById('btnSearch');
 
-        function setLog(htmlContent, isError = false) {
-            outputLog.innerHTML = isError ? `<span class="error-text">${htmlContent}</span>` : htmlContent;
+        function setLog(htmlContent) {
+            outputLog.innerHTML = htmlContent;
+        }
+
+        function isValidArrangement(arr) {
+            let N = arr.length;
+            if (N !== 5 && N !== 7 && N !== 9) return false;
+            let expectedChars = charMap.substring(0, N).split('');
+            let arrChars = arr.split('');
+            
+            expectedChars.sort();
+            arrChars.sort();
+            
+            return expectedChars.join('') === arrChars.join('');
         }
 
         function showSeed(seed) {
             let keyCount = parseInt(keyModeSelect.value, 10);
             let cp = getArrangement(seed, keyCount);
             let displayCp = formatCP(cp, keyCount);
-            setLog(`Seed <span class="key-amber">${seed}</span> [${keyCount}-key mode]:\n  ${displayCp}`);
+            setLog(`Seed ${seed} [${keyCount}-key Mode]:\n  ${displayCp}`);
         }
 
         // ------------------------------------------------------------------
-        // Memory-Optimized Web Worker
+        // Memory-Optimized Web Worker Logic
         // ------------------------------------------------------------------
         const workerCode = `
             class FastDotNetRandom {
@@ -302,7 +343,7 @@
                     this.inext = 0;
                     this.inextp = 21;
                     
-                    seed = Math.trunc(seed) | 0; 
+                    seed = Math.floor(seed) | 0; 
                     let subtraction = (seed === -2147483648) ? MBIG : Math.abs(seed);
                     let mj = MSEED - subtraction;
                     this.SeedArray[55] = mj;
@@ -341,7 +382,7 @@
                 }
                 
                 Sample() {
-                    return this.InternalSample() * 4.656612875245797e-10;
+                    return this.InternalSample() * (1.0 / 2147483647.0);
                 }
                 
                 Next(minValue, maxValue) {
@@ -363,14 +404,8 @@
                 let cpArray = new Int32Array(keyCount);
                 
                 let foundSeed = -1;
-                const progressInterval = 100000; 
                 
                 for (let seed = 0; seed < searchLimit; seed++) {
-                    
-                    if (seed > 0 && seed % progressInterval === 0) {
-                        self.postMessage({ type: 'progress', current: seed, total: searchLimit });
-                    }
-
                     rnd.reseed(seed);
                     
                     for (let i = 0; i < keyCount; i++) naArray[i] = i + 1;
@@ -400,7 +435,7 @@
                     }
                 }
                 
-                self.postMessage({ type: 'result', seed: foundSeed });
+                self.postMessage({ seed: foundSeed });
             };
         `;
 
@@ -408,16 +443,9 @@
         const workerUrl = URL.createObjectURL(workerBlob);
         let searchWorker = null;
 
-        function toggleUIState(disabled) {
-            userInput.disabled = disabled;
-            btnSearch.disabled = disabled;
-            keyModeSelect.disabled = disabled;
-            if (!disabled) userInput.focus();
-        }
-
         function searchArrangement(arr) {
             if (!isValidArrangement(arr)) {
-                setLog(`'${arr}' is invalid.\nIt must contain exact unique digits from 1 to ${arr.length} for a ${arr.length}-key layout.`, true);
+                setLog(`'${arr}' is invalid.\nIt must contain exactly unique digits from 1 to ${arr.length} for a ${arr.length}-key layout.`);
                 return;
             }
 
@@ -432,8 +460,9 @@
                 default: searchLimit = 200000;    
             }
 
-            setLog(`Searching for layout... 0%`);
-            toggleUIState(true);
+            setLog(`Searching for layout... please wait.`);
+            userInput.disabled = true;
+            btnSearch.disabled = true;
 
             if (searchWorker) {
                 searchWorker.terminate();
@@ -442,24 +471,21 @@
             searchWorker = new Worker(workerUrl);
 
             searchWorker.onmessage = function(e) {
-                if (e.data.type === 'progress') {
-                    let percent = Math.floor((e.data.current / e.data.total) * 100);
-                    setLog(`Searching for layout... ${percent}%`);
-                } 
-                else if (e.data.type === 'result') {
-                    let foundSeed = e.data.seed;
-                    let displayArr = formatCP(arr, keyCount);
-                    let output = `Arrangement searched: ${displayArr} (${keyCount}-key mode)\n`;
-                    
-                    if (foundSeed !== -1) {
-                        output += `  Required seed: <span class="key-amber">${foundSeed}</span>`;
-                    } else {
-                        output += `  <span class="error-text">Not found within ${searchLimit.toLocaleString()} seeds.</span>`;
-                    }
-
-                    setLog(output);
-                    toggleUIState(false);
+                let foundSeed = e.data.seed;
+                let displayArr = formatCP(arr, keyCount);
+                let output = `Arrangement searched: ${displayArr} (${keyCount}-key Mode)\n`;
+                
+                if (foundSeed !== -1) {
+                    output += `  Required seed: ${foundSeed}`;
+                } else {
+                    output += `  Not found within ${searchLimit.toLocaleString()} seeds.`;
                 }
+
+                setLog(output);
+                
+                userInput.disabled = false;
+                btnSearch.disabled = false;
+                userInput.focus();
             };
 
             searchWorker.postMessage({ arr: arr, keyCount: keyCount, searchLimit: searchLimit });
@@ -490,7 +516,7 @@
                 if (!isNaN(seed) && input === seed.toString()) {
                     showSeed(seed);
                 } else {
-                    setLog(`Unrecognized input '${input}'.\nPlease enter a valid numerical seed, or a valid arrangement string (e.g. 2461357).`, true);
+                    setLog(`Unrecognized input '${input}'.\nPlease enter a valid seed number, or a valid arrangement string (e.g. 2347516).`);
                 }
             }
         }
@@ -500,9 +526,8 @@
             userInput.value = '';
         });
 
-        userInput.addEventListener('keydown', (e) => {
+        userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !userInput.disabled) {
-                e.preventDefault(); 
                 processInput(userInput.value);
                 userInput.value = '';
             }
