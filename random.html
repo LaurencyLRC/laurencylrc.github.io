@@ -325,7 +325,7 @@
             let keyCount = parseInt(keyModeSelect.value, 10);
             let cp = getArrangement(seed, keyCount);
             let displayCp = formatCP(cp, keyCount);
-            setLog(`Seed ${seed} [${keyCount}-key Mode]:\n  ${displayCp}`);
+            setLog(`Seed ${seed} [${keyCount}-key mode]:\n  ${displayCp}`);
         }
 
         // ------------------------------------------------------------------
@@ -473,7 +473,7 @@
             searchWorker.onmessage = function(e) {
                 let foundSeed = e.data.seed;
                 let displayArr = formatCP(arr, keyCount);
-                let output = `Arrangement searched: ${displayArr} (${keyCount}-key Mode)\n`;
+                let output = `Arrangement searched: ${displayArr} (${keyCount}-key mode)\n`;
                 
                 if (foundSeed !== -1) {
                     output += `  Required seed: ${foundSeed}`;
