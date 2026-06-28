@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qwilight Random Seed Analyzer & Arrangement Selector</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent: #42a5f5; 
+            --accent-hover: #1e88e5;
+            --border: #333;
+            --success: #4af626;
+            --error: #ff5252;
+            --amber: #ffb300;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.5;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        header {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        select, input[type="text"] {
+            padding: 12px 16px;
+            background-color: #2c2c2c;
+            border: 2px solid var(--border);
+            color: white;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        select {
+            cursor: pointer;
+            min-width: 100px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.2);
+        }
+
+        button {
+            background-color: var(--accent);
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--accent-hover);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        input:disabled, button:disabled, select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        pre {
+            background-color: #0c0c0c;
+            color: var(--success);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            min-height: 120px;
+            font-size: 1.4rem; 
+            margin: 0;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .key-white { 
+            color: #ffffff; 
+            text-shadow: 0 0 4px rgba(255,255,255,0.4);
+        }
+        .key-blue { 
+            color: var(--accent); 
+            text-shadow: 0 0 4px rgba(66, 165, 245, 0.4);
+        }
+        .key-amber {
+            color: var(--amber);
+            text-shadow: 0 0 4px rgba(255, 179, 0, 0.4);
+        }
+        .error-text {
+            color: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Qwilight Seed & Random Arrangement Seeker</h1>
+        </header>
+        
+        <div class="input-group">
+            <select id="keyMode" aria-label="Select Key Mode">
+                <option value="5">5-key</option>
+                <option value="7" selected>7-key</option>
+                <option value="9">9-key</option>
+            </select>
+            <input type="text" id="userInput" placeholder="Seed (e.g. 612) or layout (e.g. 2461357)" autocomplete="off">
+            <button id="btnSearch">Process</button>
+        </div>
+
+        <pre id="outputLog">Ready. Enter a seed or arrangement above.</pre>
+    </main>
+
+    <script>
+        // ------------------------------------------------------------------
+        // Core Logic & Utilities
+        // ------------------------------------------------------------------
+        class DotNetRandom {
+            constructor(seed) {
+                const MBIG = 2147483647;
+                const MSEED = 161803398;
+                
+                this.inext = 0;
+                this.inextp = 21;
+                this.SeedArray = new Int32Array(56);
+                
+                seed = Math.trunc(seed) | 0; 
+                let subtraction = (seed === -2147483648) ? MBIG : Math.abs(seed);
+                let mj = MSEED - subtraction;
+                this.SeedArray[55] = mj;
+                let mk = 1;
+                
+                for (let i = 1; i < 55; i++) {
+                    let ii = (21 * i) % 55;
+                    this.SeedArray[ii] = mk;
+                    mk = mj - mk;
+                    if (mk < 0) mk += MBIG;
+                    mj = this.SeedArray[ii];
+                }
+                
+                for (let k = 1; k < 5; k++) {
+                    for (let i = 1; i < 56; i++) {
+                        this.SeedArray[i] -= this.SeedArray[1 + (i + 30) % 55];
+                        if (this.SeedArray[i] < 0) this.SeedArray[i] += MBIG;
+                    }
+                }
+            }
+            
+            InternalSample() {
+                let locINext = this.inext + 1;
+                let locINextp = this.inextp + 1;
+                
+                if (locINext >= 56) locINext = 1;
+                if (locINextp >= 56) locINextp = 1;
+                
+                let retVal = this.SeedArray[locINext] - this.SeedArray[locINextp];
+                if (retVal === 2147483647) retVal--;
+                if (retVal < 0) retVal += 2147483647;
+                
+                this.SeedArray[locINext] = retVal;
+                this.inext = locINext;
+                this.inextp = locINextp;
+                return retVal;
+            }
+            
+            Sample() {
+                // Pre-calculated constant for 1.0 / 2147483647.0
+                return this.InternalSample() * 4.656612875245797e-10;
+            }
+            
+            Next(minValue, maxValue) {
+                let range = maxValue - minValue;
+                return Math.floor(this.Sample() * range) + minValue;
+            }
+        }
+
+        function getArrangement(seed, keyCount) {
+            let rnd = new DotNetRandom(seed);
+            let naArray = Array.from({length: keyCount}, (_, i) => i + 1);
+            
+            for (let i = 0; i < naArray.length - 1; i++) {
+                let j = rnd.Next(i, naArray.length);
+                let temp = naArray[i];
+                naArray[i] = naArray[j];
+                naArray[j] = temp;
+            }
+            
+            let cpArray = new Array(keyCount);
+            for (let i = 0; i < keyCount; i++) {
+                cpArray[naArray[i] - 1] = i + 1;
+            }
+            
+            return cpArray.join("");
+        }
+
+        function formatCP(cpString, keyCount) {
+            return cpString.split('').map(char => {
+                let val = parseInt(char, 10); 
+                let isWhiteKey = keyCount % 2 !== 0 
+                    ? (val % 2 !== 0) 
+                    : (Math.min(val, keyCount - val + 1) % 2 !== 0);
+                
+                let keyClass = isWhiteKey ? 'key-white' : 'key-blue';
+                return `<span class="${keyClass}">${val}</span>`;
+            }).join('');
+        }
+
+        function isValidArrangement(arr) {
+            const N = arr.length;
+            if (![5, 7, 9].includes(N)) return false;
+            
+            // Check if string contains only digits from 1 to N
+            const regex = new RegExp(`^[1-${N}]+$`);
+            if (!regex.test(arr)) return false;
+            
+            // Check for duplicate digits (Set size must equal N)
+            return new Set(arr).size === N;
+        }
+
+        // ------------------------------------------------------------------
+        // DOM Interactions
+        // ------------------------------------------------------------------
+        const outputLog = document.getElementById('outputLog');
+        const userInput = document.getElementById('userInput');
+        const keyModeSelect = document.getElementById('keyMode');
+        const btnSearch = document.getElementById('btnSearch');
+
+        function setLog(htmlContent, isError = false) {
+            outputLog.innerHTML = isError ? `<span class="error-text">${htmlContent}</span>` : htmlContent;
+        }
+
+        function showSeed(seed) {
+            let keyCount = parseInt(keyModeSelect.value, 10);
+            let cp = getArrangement(seed, keyCount);
+            let displayCp = formatCP(cp, keyCount);
+            setLog(`Seed <span class="key-amber">${seed}</span> [${keyCount}-key mode]:\n  ${displayCp}`);
+        }
+
+        // ------------------------------------------------------------------
+        // Memory-Optimized Web Worker
+        // ------------------------------------------------------------------
+        const workerCode = `
+            class FastDotNetRandom {
+                constructor() {
+                    this.SeedArray = new Int32Array(56);
+                }
+                
+                reseed(seed) {
+                    const MBIG = 2147483647;
+                    const MSEED = 161803398;
+                    this.inext = 0;
+                    this.inextp = 21;
+                    
+                    seed = Math.trunc(seed) | 0; 
+                    let subtraction = (seed === -2147483648) ? MBIG : Math.abs(seed);
+                    let mj = MSEED - subtraction;
+                    this.SeedArray[55] = mj;
+                    let mk = 1;
+                    
+                    for (let i = 1; i < 55; i++) {
+                        let ii = (21 * i) % 55;
+                        this.SeedArray[ii] = mk;
+                        mk = mj - mk;
+                        if (mk < 0) mk += MBIG;
+                        mj = this.SeedArray[ii];
+                    }
+                    
+                    for (let k = 1; k < 5; k++) {
+                        for (let i = 1; i < 56; i++) {
+                            this.SeedArray[i] -= this.SeedArray[1 + (i + 30) % 55];
+                            if (this.SeedArray[i] < 0) this.SeedArray[i] += MBIG;
+                        }
+                    }
+                }
+                
+                InternalSample() {
+                    let locINext = this.inext + 1;
+                    let locINextp = this.inextp + 1;
+                    if (locINext >= 56) locINext = 1;
+                    if (locINextp >= 56) locINextp = 1;
+                    
+                    let retVal = this.SeedArray[locINext] - this.SeedArray[locINextp];
+                    if (retVal === 2147483647) retVal--;
+                    if (retVal < 0) retVal += 2147483647;
+                    
+                    this.SeedArray[locINext] = retVal;
+                    this.inext = locINext;
+                    this.inextp = locINextp;
+                    return retVal;
+                }
+                
+                Sample() {
+                    return this.InternalSample() * 4.656612875245797e-10;
+                }
+                
+                Next(minValue, maxValue) {
+                    let range = maxValue - minValue;
+                    return Math.floor(this.Sample() * range) + minValue;
+                }
+            }
+
+            self.onmessage = function(e) {
+                const { arr, keyCount, searchLimit } = e.data;
+                
+                let targetArr = new Int32Array(keyCount);
+                for(let i = 0; i < keyCount; i++) {
+                    targetArr[i] = parseInt(arr[i], 10);
+                }
+
+                let rnd = new FastDotNetRandom();
+                let naArray = new Int32Array(keyCount);
+                let cpArray = new Int32Array(keyCount);
+                
+                let foundSeed = -1;
+                const progressInterval = 100000; 
+                
+                for (let seed = 0; seed < searchLimit; seed++) {
+                    
+                    if (seed > 0 && seed % progressInterval === 0) {
+                        self.postMessage({ type: 'progress', current: seed, total: searchLimit });
+                    }
+
+                    rnd.reseed(seed);
+                    
+                    for (let i = 0; i < keyCount; i++) naArray[i] = i + 1;
+                    
+                    for (let i = 0; i < keyCount - 1; i++) {
+                        let j = rnd.Next(i, keyCount);
+                        let temp = naArray[i];
+                        naArray[i] = naArray[j];
+                        naArray[j] = temp;
+                    }
+                    
+                    for (let i = 0; i < keyCount; i++) {
+                        cpArray[naArray[i] - 1] = i + 1;
+                    }
+                    
+                    let match = true;
+                    for (let i = 0; i < keyCount; i++) {
+                        if (cpArray[i] !== targetArr[i]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    
+                    if (match) {
+                        foundSeed = seed;
+                        break; 
+                    }
+                }
+                
+                self.postMessage({ type: 'result', seed: foundSeed });
+            };
+        `;
+
+        const workerBlob = new Blob([workerCode], { type: "application/javascript" });
+        const workerUrl = URL.createObjectURL(workerBlob);
+        let searchWorker = null;
+
+        function toggleUIState(disabled) {
+            userInput.disabled = disabled;
+            btnSearch.disabled = disabled;
+            keyModeSelect.disabled = disabled;
+            if (!disabled) userInput.focus();
+        }
+
+        function searchArrangement(arr) {
+            if (!isValidArrangement(arr)) {
+                setLog(`'${arr}' is invalid.\nIt must contain exact unique digits from 1 to ${arr.length} for a ${arr.length}-key layout.`, true);
+                return;
+            }
+
+            let keyCount = arr.length;
+            keyModeSelect.value = keyCount;
+
+            let searchLimit;
+            switch(keyCount) {
+                case 5: searchLimit = 400; break;
+                case 7: searchLimit = 25200; break;
+                case 9: searchLimit = 5500000; break;
+                default: searchLimit = 200000;    
+            }
+
+            setLog(`Searching for layout... 0%`);
+            toggleUIState(true);
+
+            if (searchWorker) {
+                searchWorker.terminate();
+            }
+
+            searchWorker = new Worker(workerUrl);
+
+            searchWorker.onmessage = function(e) {
+                if (e.data.type === 'progress') {
+                    let percent = Math.floor((e.data.current / e.data.total) * 100);
+                    setLog(`Searching for layout... ${percent}%`);
+                } 
+                else if (e.data.type === 'result') {
+                    let foundSeed = e.data.seed;
+                    let displayArr = formatCP(arr, keyCount);
+                    let output = `Arrangement searched: ${displayArr} (${keyCount}-key mode)\n`;
+                    
+                    if (foundSeed !== -1) {
+                        output += `  Required seed: <span class="key-amber">${foundSeed}</span>`;
+                    } else {
+                        output += `  <span class="error-text">Not found within ${searchLimit.toLocaleString()} seeds.</span>`;
+                    }
+
+                    setLog(output);
+                    toggleUIState(false);
+                }
+            };
+
+            searchWorker.postMessage({ arr: arr, keyCount: keyCount, searchLimit: searchLimit });
+        }
+
+        function processInput(input) {
+            input = input.trim();
+            if (!input) return;
+
+            let lowerInput = input.toLowerCase();
+
+            if (lowerInput.startsWith("s ") || lowerInput.startsWith("seed ")) {
+                let numPart = lowerInput.split(' ').pop();
+                let seed = parseInt(numPart, 10);
+                if (!isNaN(seed)) showSeed(seed);
+                return;
+            }
+            
+            if (lowerInput.startsWith("a ") || lowerInput.startsWith("arr ")) {
+                searchArrangement(lowerInput.split(' ').pop());
+                return;
+            }
+            
+            if (isValidArrangement(input)) {
+                searchArrangement(input);
+            } else {
+                let seed = parseInt(input, 10);
+                if (!isNaN(seed) && input === seed.toString()) {
+                    showSeed(seed);
+                } else {
+                    setLog(`Unrecognized input '${input}'.\nPlease enter a valid numerical seed, or a valid arrangement string (e.g. 2461357).`, true);
+                }
+            }
+        }
+
+        btnSearch.addEventListener('click', () => {
+            processInput(userInput.value);
+            userInput.value = '';
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !userInput.disabled) {
+                e.preventDefault(); 
+                processInput(userInput.value);
+                userInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
